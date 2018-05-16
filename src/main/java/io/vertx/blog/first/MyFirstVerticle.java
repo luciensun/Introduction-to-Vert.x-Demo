@@ -12,7 +12,10 @@ public class MyFirstVerticle extends AbstractVerticle {
             rh.response().putHeader("Context-Type", "text/html");
             rh.response().end("<h1>Hello from my first "
                     + "Vert.x 3 application</h1>");
-        }).listen(8080, res -> {
+        }).listen(
+             // Retrieve the port from the configuration,
+             // default to 8080.
+                config().getInteger("http.port", 8080), res -> {
             if (res.succeeded()) {
                 fut.complete();
             } else {
