@@ -103,7 +103,7 @@ public class MyFirstVerticle extends AbstractVerticle {
         // Bind "/" to our hello message - so we are still compatible.
         router.route("/").handler(routingContext -> {
             HttpServerResponse response = routingContext.response();
-            response.putHeader("Content-Type", "text/html")
+            response.putHeader("Content-Type", "text/html;charset=UTF-8")
                     .end("<h1>Hello from my first Vert.x 3 application</h1>");
         });
 
