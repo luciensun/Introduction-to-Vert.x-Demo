@@ -23,8 +23,6 @@ import io.vertx.ext.web.handler.BodyHandler;
 import io.vertx.ext.web.handler.StaticHandler;
 
 public class MyFirstVerticle extends AbstractVerticle {
-    // Store our product
-    private Map<Integer, Whisky> products = new LinkedHashMap<>();
 
     private JDBCClient jdbc;
     
@@ -185,12 +183,46 @@ public class MyFirstVerticle extends AbstractVerticle {
     }
     
     private void startWebApp(Handler<AsyncResult<HttpServer>> next) {
+        // Create a Router object.
+        Router router = Router.router(vertx);
+
+        // Bind "/" to our hello message - so we are still compatible.
+        router.route("/").handler(context -> {
+            HttpServerResponse response = context.response();
+            response.putHeader("Content-Type", "text/html;charset=UTF-8")
+                    .end("<h1>Hello from my first Vert.x 3 application</h1>");
+        });
+
+        // Serve static resources from the /assets directory.
+        router.route("/assets/*").handler(StaticHandler.create("assets"));
+
+        router.get("/api/whiskies").handler(this::getAll);
+
+        router.route("/api/whiskies*").handler(BodyHandler.create());
         
+        router.post("/api/whiskies").handler(this::addOne);
+
+        router.get("/api/whiskies/:id").handler(this::getOne);
+
+        router.put("/api/whiskies/:id").handler(this::updateOne);
+
+        router.delete("/api/whiskies/:id").handler(this::deleteOne);
+        
+        // Create the HTTP server and pass the "accept" method 
+        // to the request handler.
+        vertx.createHttpServer().requestHandler(router::accept).listen(
+                // Retrieve the port from the configuration,
+                // default to 8080.
+                config().getInteger("http.port", 8080), next::handle);
     }
     
     private void completeStartup(AsyncResult<HttpServer> http
             , Future<Void> fut) {
-        
+        if (http.failed()) {
+            fut.fail(http.cause());
+        } else {
+            fut.complete();
+        }
     }
     
     private void select(String id, SQLConnection connection
@@ -274,41 +306,10 @@ public class MyFirstVerticle extends AbstractVerticle {
                     ), fut
                 ), fut);
 
-        // Create a Router object.
-        Router router = Router.router(vertx);
-
-        // Bind "/" to our hello message - so we are still compatible.
-        router.route("/").handler(routingContext -> {
-            HttpServerResponse response = routingContext.response();
-            response.putHeader("Content-Type", "text/html;charset=UTF-8")
-                    .end("<h1>Hello from my first Vert.x 3 application</h1>");
-        });
-
-        // Serve static resources from the /assets directory.
-        router.route("/assets/*").handler(StaticHandler.create("assets"));
-
-        router.get("/api/whiskies").handler(this::getAll);
-
-        router.route("/api/whiskies*").handler(BodyHandler.create());
-        router.post("/api/whiskies").handler(this::addOne);
-
-        router.delete("/api/whiskies/:id").handler(this::deleteOne);
-
-        router.get("/api/whiskies/:id").handler(this::getOne);
-
-        router.put("/api/whiskies/:id").handler(this::updateOne);
-
-        // Create the HTTP server and pass the "accept" method to the request
-        // handler.
-        vertx.createHttpServer().requestHandler(router::accept).listen(
-                // Retrieve the port from the configuration,
-                // default to 8080.
-                config().getInteger("http.port", 8080), res -> {
-                    if (res.succeeded()) {
-                        fut.complete();
-                    } else {
-                        fut.fail(res.cause());
-                    }
-                });
+    }
+    
+    @Override
+    public void stop() {
+        jdbc.close();
     }
 }
