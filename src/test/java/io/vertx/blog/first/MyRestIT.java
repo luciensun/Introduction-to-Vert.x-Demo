@@ -41,7 +41,7 @@ public class MyRestIT {
 	    Assertions.assertThat(whisky.getName()).isEqualToIgnoringCase("Jameson");
 	    Assertions.assertThat(whisky.getOrigin()).isEqualToIgnoringCase("Ireland");
 	    Assertions.assertThat(whisky.getId()).isNotZero();
-
+	    System.out.println("whisky id is" + whisky.getId());
 	    // Check that it has created an individual resource, and check the content.
 	    RestAssured.get("/api/whiskies/" + whisky.getId()).then()
 	        .assertThat()

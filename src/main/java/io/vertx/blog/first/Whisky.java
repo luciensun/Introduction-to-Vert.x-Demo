@@ -27,7 +27,7 @@ public class Whisky {
     }
 
     public Whisky(int id, String name, String origin) {
-        this.id = -1;
+        this.id = id;
         this.name = name;
         this.origin = origin;
     }

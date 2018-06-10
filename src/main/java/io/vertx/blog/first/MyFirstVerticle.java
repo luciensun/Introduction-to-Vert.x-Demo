@@ -1,8 +1,6 @@
 package io.vertx.blog.first;
 
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import io.vertx.core.AbstractVerticle;
@@ -80,7 +78,8 @@ public class MyFirstVerticle extends AbstractVerticle {
                     context.response()
                     .setStatusCode(201)
                     .putHeader("Content-Type", "application/json; charset=utf-8")
-                    .end(Json.encodePrettily(whisky));
+                    .end(Json.encodePrettily(r.result()));
+
                     connection.close();
                 });
             }
@@ -275,6 +274,7 @@ public class MyFirstVerticle extends AbstractVerticle {
                         UpdateResult result = ar.result();
                         // Build a new whisky instance with the generated id.
                         Whisky w = new Whisky(result.getKeys().getInteger(0), whisky.getName(), whisky.getOrigin());
+                      
                         next.handle(Future.succeededFuture(w));
                     }
                 });
