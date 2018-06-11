@@ -4,35 +4,44 @@ import io.vertx.core.json.JsonObject;
 
 public class Whisky {
 
-    private final int id;
+    private String id;
 
     private String name;
 
     private String origin;
 
     public Whisky() {
-        this.id = -1;
+        this.id = "";
     }
 
     public Whisky(String name, String origin) {
-        this.id = -1;
+        this.id = "";
         this.name = name;
         this.origin = origin;
     }
-    
+
     public Whisky(JsonObject json) {
-        this.id = json.getInteger("ID");
-        this.name = json.getString("NAME");
-        this.origin = json.getString("ORIGIN");
+        this.id = json.getString("_id");
+        this.name = json.getString("name");
+        this.origin = json.getString("origin");
     }
 
-    public Whisky(int id, String name, String origin) {
+    public Whisky(String id, String name, String origin) {
         this.id = id;
         this.name = name;
         this.origin = origin;
     }
-    
-    public int getId() {
+
+    public JsonObject toJson() {
+        JsonObject json = new JsonObject().put("name", name).put("origin",
+                origin);
+        if (id != null && !id.isEmpty()) {
+            json.put("_id", id);
+        }
+        return json;
+    }
+
+    public String getId() {
         return id;
     }
 
@@ -50,6 +59,10 @@ public class Whisky {
 
     public void setOrigin(String origin) {
         this.origin = origin;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
 }
